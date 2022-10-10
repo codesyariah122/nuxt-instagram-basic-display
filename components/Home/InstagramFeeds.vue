@@ -111,7 +111,7 @@
 					<div class="feed__detail-content">
 						<div v-if="detail.media_type === 'CAROUSEL_ALBUM'" class="feed__media">
 							<b-carousel  id="carousel-fade" style="text-shadow: 0px 0px 2px #000" fade indicators controls :interval="3000">
-								<b-carousel-slide v-for="(item, index) in carousel.data" :img-src="item.media_url"></b-carousel-slide>
+								<b-carousel-slide v-for="(item, index) in carousel.data" :img-src="item.media_url" :key="item.id"></b-carousel-slide>
 							</b-carousel>
 						</div>
 						<div v-else class="feed__media">

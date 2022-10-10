@@ -16,15 +16,25 @@ export default {
       { name: 'format-detection', content: 'telephone=no' }
     ],
     link: [
-      { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
+      { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+      { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css'}
+    ],
+
+    script: [
+      { src: 'https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js'},
+      { src: 'https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js'},
+      { src: '/carousel.js'}
     ]
   },
 
   // Global CSS: https://go.nuxtjs.dev/config-css
+  css: [
+    
+  ],
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
   plugins: [
-    { src: "~/plugins/feeds" },
+    { src: "~/plugins/feeds" }
   ],
 
   // Auto import components: https://go.nuxtjs.dev/config-components

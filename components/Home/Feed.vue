@@ -73,6 +73,16 @@
 		left: 0;
 	}
 }
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+	height: 50px !important;
+	width: 50px !important;
+	margin-top: -.5rem;
+	border-radius:50%;
+	background-color: #004899;
+	z-index: 1!important;
+}
+
 </style>
 
 <template>
@@ -110,9 +120,26 @@
 				<b-modal id="detail-feed" size="lg" hide-header hide-footer>
 					<div class="feed__detail-content">
 						<div v-if="detail.media_type === 'CAROUSEL_ALBUM'" class="feed__media">
-							<b-carousel  id="carousel-fade" style="text-shadow: 0px 0px 2px #000" fade indicators controls :interval="3000">
-								<b-carousel-slide v-for="(item, index) in carousel.data" :img-src="item.media_url"></b-carousel-slide>
-							</b-carousel>
+							<div id="carouselExampleControls" class="carousel slide" data-ride="carousel">
+								<div class="carousel-inner">
+									<div v-for="(item, index) in carousel.data" :class="`carousel-item ${index === 0 ? 'active' : ''}`">
+										<video v-if="item.media_type === 'VIDEO'" controls autoplay>
+											<source :src="item.media_url" type="video/mp4">
+											<source :src="item.media_url" type="video/ogg">
+											<source :src="item.media_url" type="video/webm">
+										</video>
+										<img v-else :src="item.media_url" class="d-block w-100" alt="laptop satu">
+									</div>
+								</div>
+								<button class="carousel-control-prev" type="button" data-target="#carouselExampleControls" data-slide="prev">
+									<span class="carousel-control-prev-icon" aria-hidden="true"></span>
+									<span class="sr-only">Previous</span>
+								</button>
+								<button class="carousel-control-next" type="button" data-target="#carouselExampleControls" data-slide="next">
+									<span class="carousel-control-next-icon" aria-hidden="true"></span>
+									<span class="sr-only">Next</span>
+								</button>
+							</div>
 						</div>
 						<div v-else class="feed__media">
 							<img v-if="detail.media_type === 'IMAGE'" :src="detail.media_url" />
@@ -225,8 +252,7 @@
 
 			detailFeed(data){
 				if(data.media_type === "CAROUSEL_ALBUM"){
-					const url = `https://graph.instagram.com/${data.id}/children?fields=id,media_url,thumbnail_url,media_type&access_token=${process.env.NUXT_ENV_INSTAGRAM_KEY}`
-					this.getCarouselStore(url)
+					this.getCarouselStore(this.next_url)
 					this.$bvModal.show('detail-feed')
 				}
 
@@ -242,6 +268,9 @@
 		computed: {
 			api_url(){
 				return this.$store.getters['config/getApiUrl']
+			},
+			next_url(){
+				return this.$store.getters['config/getNextApiUrl']
 			},
 			carousel(){
 				return this.$store.getters['getCarouselData']
