@@ -95,7 +95,7 @@
 			</b-col>
 		</b-row>
 		<b-row v-else class="justify-content-start">
-			<b-col v-for="(item, index) in feeds" lg="4" md="4" sm="12" :key="item.id" class="mb-5">
+			<b-col v-for="(item, index) in feeds" lg="4" md="4" sm="12" :key="index" class="mb-5">
 				<div v-if="item.media_type === 'IMAGE' || item.media_type === 'CAROUSEL_ALBUM' || item.media_type === 'VIDEO'" class="container">
 
 					<img v-if="item.media_type === 'IMAGE'" :src="item.media_url"  class="media">
@@ -122,7 +122,7 @@
 						<div v-if="detail.media_type === 'CAROUSEL_ALBUM'" class="feed__media">
 							<div id="carouselExampleControls" class="carousel slide" data-ride="carousel">
 								<div class="carousel-inner">
-									<div v-for="(item, index) in carousel.data" :class="`carousel-item ${index === 0 ? 'active' : ''}`">
+									<div v-for="(item, index) in carousel.data" :class="`carousel-item ${index === 0 ? 'active' : ''}`" :key="index">
 										<video v-if="item.media_type === 'VIDEO'" controls autoplay>
 											<source :src="item.media_url" type="video/mp4">
 											<source :src="item.media_url" type="video/ogg">
@@ -264,7 +264,7 @@
 
 			loadMoreFeed(){
 				window.onscroll = () => {
-					// console.log(this.$refs.infinite.getBoundingClientRect().bottom)
+					console.log(this.$refs.infinite.getBoundingClientRect().bottom)
 					if(this.$refs.infinite.getBoundingClientRect().bottom <= 542.0000152587891){
 						console.log(this.paging.next)
 						this.nextFeed(this.paging.next)
