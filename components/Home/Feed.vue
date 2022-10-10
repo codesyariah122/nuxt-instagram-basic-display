@@ -94,7 +94,7 @@
 				</div>
 			</b-col>
 		</b-row>
-		<b-row v-else class="justify-content-start" ref="feed_content">
+		<b-row v-else class="justify-content-start">
 			<b-col v-for="(item, index) in feeds" lg="4" md="4" sm="12" :key="item.id" class="mb-5">
 				<div v-if="item.media_type === 'IMAGE' || item.media_type === 'CAROUSEL_ALBUM' || item.media_type === 'VIDEO'" class="container">
 
@@ -163,14 +163,15 @@
 			<b-spinner v-if="configLoading.next"  style="width: 5rem; height: 5rem;" variant="primary" label="Loading..."></b-spinner>
 		</b-row>
 
-		<b-row class="justify-content-center mt-5 mb-5">
+		<b-row class="justify-content-center mt-5 mb-5" ref="infinite">
 			<b-col lg="2" sm="12" md="2">
 				<b-button variant="none" pill size="lg" @click="nextFeed(paging.next)"><font-awesome-icon :icon="['fas', 'circle-down']" size="lg" style="font-size: 4rem;"/></b-button>
 			</b-col>
 		</b-row>
-
 	</b-container>
 </template>
+
+
 
 <script>
 	export default {
@@ -186,18 +187,25 @@
 				},
 				feeds: [],
 				detail: {},
+				carousel: [],
 				paging: {}
 			}
 		},
 
 		beforeMount(){
+			this.configApiUrl(),
 			this.instagramFeedData(this.api_url)
 		},
-		// mounted(){
-		// 	this.loadMoreFeed()
-		// },
+
+		mounted(){
+			this.loadMoreFeed()
+		},
 
 		methods: {
+			configApiUrl(){
+				return this.$store.dispatch("config/storeConfigApiUrl")
+			},
+
 			instagramFeedData(url){
 				this.configLoading.first = true
 				this.$axios
@@ -210,7 +218,7 @@
 						this.next = true
 					}
 				})
-				.catch(err => console.error(err.response.data))
+				.catch(err => console.error(err.response))
 				.finally(() => {
 					setTimeout(() => {
 						this.configLoading.first = false
@@ -218,41 +226,11 @@
 				})
 			},
 
-			nextFeed(url){
-				this.next = true
-				this.configLoading.next = true
-				this.$axios
-				.get(url)
-				.then(({data}) => {
-					data.data.map(d => {
-						this.feeds.push(d)
-						this.paging = data.paging
-					})
-				})
-				.catch(err => console.error(err))
-				.finally(() => {
-					setTimeout(() => {
-						this.configLoading.next = false
-					}, 2500)
-				})
-			},
-
-			loadMoreFeed(){
-				window.onscroll = () => {
-					this.next = true
-					let bottomOfWindow = document.documentElement.scrollTop + window.innerHeight === document.documentElement.offsetHeight;
-					console.log(this.$refs.feed_content.getBoundingClientRect().bottom)
-					if(this.$refs.feed_content.getBoundingClientRect().bottom <= 632){
-						this.nextFeed(this.paging.next)
-					}else{
-						console.log("Ga next ya bro")
-					}
-				}
-			},
-
 			detailFeed(data){
 				if(data.media_type === "CAROUSEL_ALBUM"){
-					this.getCarouselStore(this.next_url)
+					// this.getCarouselStore(this.next_url)
+					this.$store.dispatch('config/storeConfigChildUrl', data.id)
+					this.getCarousel(this.child_url)
 					this.$bvModal.show('detail-feed')
 				}
 
@@ -260,8 +238,49 @@
 				this.$bvModal.show('detail-feed')
 			},
 
-			getCarouselStore(url){
-				this.$store.dispatch('carouselAlbum', url)
+			async nextFeed(url){
+				console.log(this.paging)
+				this.next = true
+				this.configLoading.next = true
+				try{
+					await this.$axios
+					.get(url)
+					.then(({data})=>{
+						data.data.map(d => {
+							this.feeds.push(d)
+							this.paging = data.paging
+						})
+					})
+					.catch(err => console.error(err.response))
+					.finally(() => {
+						setTimeout(() => {
+							this.configLoading.next = false
+						}, 2500)
+					})
+				}catch(err){
+					console.log(err)
+				}
+			},
+
+			loadMoreFeed(){
+				window.onscroll = () => {
+					// console.log(this.$refs.infinite.getBoundingClientRect().bottom)
+					if(this.$refs.infinite.getBoundingClientRect().bottom <= 542.0000152587891){
+						console.log(this.paging.next)
+						this.nextFeed(this.paging.next)
+					}else{
+						console.log("Ga next ya bro")
+					}
+				}
+			},
+
+			getCarousel(url){
+				this.$axios
+				.get(url)
+				.then(({data}) => {
+					this.carousel = data
+				})
+				.catch(err => console.error(err.response))
 			}
 		},
 
@@ -269,11 +288,9 @@
 			api_url(){
 				return this.$store.getters['config/getApiUrl']
 			},
-			next_url(){
-				return this.$store.getters['config/getNextApiUrl']
-			},
-			carousel(){
-				return this.$store.getters['getCarouselData']
+		
+			child_url(){
+				return this.$store.getters['config/getChildApiUrl']
 			}
 		}
 	}
